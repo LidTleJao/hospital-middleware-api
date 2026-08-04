@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile:1
 
 # ---------- base: dependencies only, so this layer is cached across code edits
-FROM golang:1.24-alpine AS base
+# Must stay >= the `go` directive in go.mod: the official golang images pin
+# GOTOOLCHAIN=local, so an older image fails instead of fetching a newer Go.
+FROM golang:1.25-alpine AS base
 WORKDIR /app
 RUN apk add --no-cache git ca-certificates
 COPY go.mod go.sum ./
