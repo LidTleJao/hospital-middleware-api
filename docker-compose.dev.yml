@@ -1,0 +1,22 @@
+# Development overlay. Applied on top of docker-compose.yml by `make dev`:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# It swaps the compiled image for the `dev` stage, bind-mounts the source tree
+# and lets air rebuild the binary whenever a .go file changes.
+services:
+  api:
+    build:
+      target: dev
+    environment:
+      GIN_MODE: debug
+    volumes:
+      - .:/app
+      - go-mod-cache:/go/pkg/mod
+      - go-build-cache:/root/.cache/go-build
+    # Published directly so you can curl the API without going through nginx.
+    ports:
+      - "${API_DEBUG_PORT:-8081}:8080"
+
+volumes:
+  go-mod-cache:
+  go-build-cache:

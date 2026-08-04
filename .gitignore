@@ -1,0 +1,23 @@
+# compiled binaries
+/bin/
+/tmp/
+*.exe
+*.test
+# `go build ./...` drops the binary of a main package into the working directory
+/api
+
+# coverage output
+coverage.out
+coverage.html
+
+# local environment
+.env
+.env.local
+
+# editors / OS
+.idea/
+.vscode/
+.DS_Store
+
+# air working directory
+.air/

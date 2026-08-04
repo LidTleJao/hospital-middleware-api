@@ -1,0 +1,2 @@
+-- Initial schema.
+-- Tables are designed and written in the next step.
