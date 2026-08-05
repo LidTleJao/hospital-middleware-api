@@ -31,7 +31,10 @@ services:
       - "-path=/migrations"
       - "-database=postgres://${POSTGRES_USER:-hospital}:${POSTGRES_PASSWORD:-hospital}@postgres:5432/${POSTGRES_DB:-hospital}?sslmode=disable"
       - "up"
-    restart: on-failure
+    # Never restart: this container runs once. Retrying a failed migration
+    # only floods the log with "Dirty database version N" and buries the
+    # SQL error that actually caused the failure.
+    restart: "no"
     networks: [hospital-net]
 
   api:
