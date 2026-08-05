@@ -46,8 +46,9 @@ func main() {
 	staffRepo := repository.NewStaff(db)
 
 	staffService := service.NewStaff(hospitalRepo, staffRepo)
+	tokenService := service.NewToken(cfg.JWTSecret, cfg.JWTTTL)
 
-	staffHandler := handler.NewStaff(staffService)
+	staffHandler := handler.NewStaff(staffService, tokenService)
 
 	router := httptransport.NewRouter(httptransport.Handlers{
 		Staff: staffHandler,

@@ -18,14 +18,20 @@ type staffService interface {
 	Login(ctx context.Context, code, username, password string) (model.Staff, error)
 }
 
+// tokenIssuer is the slice of the token service this handler uses.
+type tokenIssuer interface {
+	Issue(staffID, hospitalID int64, username string) (string, error)
+}
+
 // Staff serves the staff endpoints.
 type Staff struct {
 	staffs staffService
+	tokens tokenIssuer
 }
 
 // NewStaff returns a handler backed by svc.
-func NewStaff(svc staffService) *Staff {
-	return &Staff{staffs: svc}
+func NewStaff(svc staffService, tokens tokenIssuer) *Staff {
+	return &Staff{staffs: svc, tokens: tokens}
 }
 
 // createRequest is the body POST /staff/create accepts.
@@ -81,6 +87,10 @@ type loginRequest struct {
 	HospitalCode string `json:"hospital" binding:"required,max=50"`
 }
 
+type loginResponse struct {
+	Token string `json:"token"`
+}
+
 // Login handles POST /staff/login.
 func (h *Staff) Login(c *gin.Context) {
 	var req loginRequest
@@ -100,9 +110,13 @@ func (h *Staff) Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, staffResponse{
-		ID:           staff.ID,
-		Username:     staff.Username,
-		HospitalCode: req.HospitalCode,
+	token, err := h.tokens.Issue(staff.ID, staff.HospitalID, staff.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{Error: "internal error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, loginResponse{
+		Token: token,
 	})
 }
