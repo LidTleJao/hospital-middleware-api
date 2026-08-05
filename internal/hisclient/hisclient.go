@@ -17,7 +17,6 @@ var ErrNotFound = errors.New("not found")
 
 // Patient is the HIS record for a patient. It is a subset of the HIS's
 // full record, and it is used to avoid leaking sensitive information like the
-// patient's address or medical history.
 type Patient struct {
 	FirstNameTH  *string `json:"first_name_th"`
 	MiddleNameTH *string `json:"middle_name_th"`
@@ -48,7 +47,7 @@ func New(baseURL string, timeout time.Duration) *Client {
 	}
 }
 
-// FetchByID calls the HIS service to get the patient record for id. It returns
+// FetchByID calls the HIS service to get the patient record for id.
 func (c *Client) FetchByID(ctx context.Context, id string) (Patient, error) {
 	endpoint := c.baseURL + "/patient/search/" + url.PathEscape(id)
 
@@ -73,10 +72,10 @@ func (c *Client) FetchByID(ctx context.Context, id string) (Patient, error) {
 		return Patient{}, fmt.Errorf("HIS returned %s", resp.Status)
 	}
 
-	var book Patient
-	if err := json.NewDecoder(resp.Body).Decode(&book); err != nil {
+	var patient Patient
+	if err := json.NewDecoder(resp.Body).Decode(&patient); err != nil {
 		return Patient{}, fmt.Errorf("decode HIS response: %w", err)
 	}
 
-	return book, nil
+	return patient, nil
 }
