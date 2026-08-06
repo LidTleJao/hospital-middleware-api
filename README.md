@@ -55,8 +55,8 @@
       hospitals {
           bigserial   hospital_id      PK
           varchar     hospital_code    UK "H001, H002, ..."
-          varchar     hospital_name_th NULL
-          varchar     hospital_name_en NULL
+          varchar     hospital_name_th    "nullable"
+          varchar     hospital_name_en    "nullable"
           timestamptz created_at
           timestamptz updated_at
       }
@@ -64,8 +64,8 @@
       staffs {
           bigserial   staff_id    PK
           bigint      hospital_id FK
-          varchar     username         "unique คู่กับ hospital_id"
-          varchar     password         "bcrypt hash"
+          varchar     username       "unique with hospital_id"
+          varchar     password       "bcrypt hash"
           timestamptz created_at
           timestamptz updated_at
       }
@@ -73,19 +73,19 @@
       patients {
           bigserial   patient_id     PK
           bigint      hospital_id    FK
-          varchar     patient_hn          "unique คู่กับ hospital_id"
-          varchar     national_id    NULL "unique คู่กับ hospital_id"
-          varchar     passport_id    NULL "unique คู่กับ hospital_id"
-          varchar     first_name_th  NULL
-          varchar     middle_name_th NULL
-          varchar     last_name_th   NULL
-          varchar     first_name_en  NULL
-          varchar     middle_name_en NULL
-          varchar     last_name_en   NULL
+          varchar     patient_hn        "unique with hospital_id"
+          varchar     national_id       "nullable, unique with hospital_id"
+          varchar     passport_id       "nullable, unique with hospital_id"
+          varchar     first_name_th     "nullable"
+          varchar     middle_name_th    "nullable"
+          varchar     last_name_th      "nullable"
+          varchar     first_name_en     "nullable"
+          varchar     middle_name_en    "nullable"
+          varchar     last_name_en      "nullable"
           date        date_of_birth
-          varchar     phone_number   NULL
-          varchar     email          NULL
-          varchar     gender              "M หรือ F"
+          varchar     phone_number      "nullable"
+          varchar     email             "nullable"
+          varchar     gender            "M or F"
           timestamptz created_at
           timestamptz updated_at
       }
