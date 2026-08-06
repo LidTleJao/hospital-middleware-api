@@ -20,6 +20,7 @@ import (
 
 	"github.com/LidTleJao/hospital-middleware-api/internal/config"
 	"github.com/LidTleJao/hospital-middleware-api/internal/database"
+	"github.com/LidTleJao/hospital-middleware-api/internal/hisclient"
 	"github.com/LidTleJao/hospital-middleware-api/internal/repository"
 	"github.com/LidTleJao/hospital-middleware-api/internal/service"
 	httptransport "github.com/LidTleJao/hospital-middleware-api/internal/transport/http"
@@ -44,15 +45,21 @@ func main() {
 	// handlers talk to services. Nothing points back up the chain.
 	hospitalRepo := repository.NewHospital(db)
 	staffRepo := repository.NewStaff(db)
+	patientRepo := repository.NewPatient(db)
+
+	his := hisclient.New(cfg.HISBaseURL, cfg.HISTimeout)
 
 	staffService := service.NewStaff(hospitalRepo, staffRepo)
 	tokenService := service.NewToken(cfg.JWTSecret, cfg.JWTTTL)
+	patientService := service.NewPatient(his, patientRepo)
 
 	staffHandler := handler.NewStaff(staffService, tokenService)
+	patientHandler := handler.NewPatient(patientService)
 
 	router := httptransport.NewRouter(httptransport.Handlers{
-		Staff: staffHandler,
-	})
+		Staff:   staffHandler,
+		Patient: patientHandler,
+	}, tokenService)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
