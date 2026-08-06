@@ -63,12 +63,6 @@ func TestPatientImport(t *testing.T) {
 			service:    stubPatientService{err: errors.New("id is required")},
 			wantStatus: http.StatusBadRequest,
 			wantField:  "error",
-		}, {
-			name:       "returns an empty array when nothing matches",
-			body:       `{"first_name":"ไม่มีใครชื่อนี้"}`,
-			service:    stubPatientService{patients: []model.Patient{}},
-			wantStatus: http.StatusOK,
-			wantCount:  0,
 		},
 	}
 
@@ -138,6 +132,13 @@ func TestPatientSearch(t *testing.T) {
 			body:       `{"first_name":"สมชาย"}`,
 			service:    stubPatientService{err: errors.New("boom")},
 			wantStatus: http.StatusInternalServerError,
+		},
+		{
+			name:       "returns an empty array when nothing matches",
+			body:       `{"first_name":"ไม่มีใครชื่อนี้"}`,
+			service:    stubPatientService{patients: []model.Patient{}},
+			wantStatus: http.StatusOK,
+			wantCount:  0,
 		},
 	}
 
