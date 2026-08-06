@@ -15,6 +15,13 @@
   go test ./...                             # 16 เคส
   ```
 
+  ถ้าเครื่องมี PostgreSQL รันอยู่แล้วที่ port 5432 จะชนกับ container
+  แก้ได้โดยเปลี่ยนค่าใน .env แล้ว `docker compose up -d` ใหม่:
+
+      POSTGRES_PORT=55432
+
+  แล้วต่อเครื่องมือดู DB ที่ localhost:55432 (user/password/db = hospital ทั้งหมด)
+
 
 ## Project Structure
 
