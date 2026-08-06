@@ -3,12 +3,14 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/LidTleJao/hospital-middleware-api/internal/model"
 	"github.com/LidTleJao/hospital-middleware-api/internal/repository"
+	"github.com/LidTleJao/hospital-middleware-api/internal/service"
 	"github.com/LidTleJao/hospital-middleware-api/internal/transport/http/middleware"
 )
 
@@ -27,8 +29,6 @@ type Patient struct {
 type syncRequest struct {
 	ID string `json:"id" binding:"required"`
 }
-
-ะัยำ
 
 // NewPatient returns a handler backed by svc.
 func NewPatient(svc patientService) *Patient {
@@ -95,7 +95,12 @@ func (h *Patient) Search(c *gin.Context) {
 	}, req.PageSize, req.Page)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errorResponse{Error: "internal error"})
+		switch {
+		case errors.Is(err, service.ErrPatientNotFound):
+			c.JSON(http.StatusNotFound, errorResponse{Error: "patient not found"})
+		default:
+			c.JSON(http.StatusInternalServerError, errorResponse{Error: "internal error"})
+		}
 		return
 	}
 
@@ -138,7 +143,12 @@ func (h *Patient) Import(c *gin.Context) {
 
 	patient, err := h.patients.Import(c.Request.Context(), claims.HospitalID, req.ID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errorResponse{Error: "internal error"})
+		switch {
+		case errors.Is(err, service.ErrPatientNotFound):
+			c.JSON(http.StatusNotFound, errorResponse{Error: "patient not found"})
+		default:
+			c.JSON(http.StatusInternalServerError, errorResponse{Error: "internal error"})
+		}
 		return
 	}
 
