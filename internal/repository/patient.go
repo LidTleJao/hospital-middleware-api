@@ -10,7 +10,7 @@ import (
 	"github.com/LidTleJao/hospital-middleware-api/internal/model"
 )
 
-// Patient reads and writes rows in Patient table.
+// Patient reads and writes rows in the Patient table.
 type Patient struct {
 	db *sqlx.DB
 }

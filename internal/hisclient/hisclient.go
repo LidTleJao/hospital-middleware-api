@@ -24,7 +24,7 @@ type Patient struct {
 	FirstNameEN  *string `json:"first_name_en"`
 	MiddleNameEN *string `json:"middle_name_en"`
 	LastNameEN   *string `json:"last_name_en"`
-	BirthDate    string  `json:"date_of_birth"`
+	DateOfBirth  string  `json:"date_of_birth"`
 	PatientHN    string  `json:"patient_hn"`
 	NationalID   *string `json:"national_id"`
 	PassportID   *string `json:"passport_id"`
