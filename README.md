@@ -184,15 +184,15 @@
   ** Request **
   ```json
   {
-    "id": "P001"
+    "id": "1101700200111"
   }
   ```
 
   ** Response 200**
   ```json
   {
-    "patient_id": "P001",
-    "hospital_id": "H001",
+    "id": 1,
+    "hospital_id": 1,
     "first_name_th": "สมชาย",
     "middle_name_th": "ใจดี",
     "last_name_th": "ใจดี",
@@ -242,32 +242,30 @@
 
   ** Response 200**
   ```json
-  {
+  [
     {
-      "patient_id": "P001",
-      "hospital_id": "1",
+      "id": 1,
+      "hospital_id": 1,
       "first_name_th": "สมชาย",
-      "middle_name_th": "ใจดี",
+      "middle_name_th": null,
       "last_name_th": "ใจดี",
       "first_name_en": "Somchai",
-      "middle_name_en": "Jaidee",
+      "middle_name_en": null,
       "last_name_en": "Jaidee",
-      "date_of_birth": "1990-01-01",
-      "patient_hn": "123456",
-      "national_id": "1234567890123",
-      "passport_id": "A1234567",
-      "phone_number": "0812345678",
-      "email": "example@gmail.com",
+      "date_of_birth": "1990-01-15",
+      "patient_hn": "A-001",
+      "national_id": "1101700200111",
+      "passport_id": null,
+      "phone_number": "0811111111",
+      "email": "somchai@example.com",
       "gender": "M"
     }
-  }
+  ]
   ```
 
   ** Response 200 กรณีไม่เจอ**
   ```json
-  {
-    []
-  }
+  []
   ```
 
   ** Error **
@@ -285,6 +283,19 @@
   4. login ตอบ 401 เหมือนกันทุกกรณี แต่ create ตอบ 404 ได้ — กัน user enumeration
   5. ไม่มี soft delete — โจทย์ไม่มี API ลบ และมันจะบังคับให้ unique ทุกตัวเป็น partial index
   6. HIS ยิงไม่ติดจริง — เขียน client ตามสเปกจริง + มี /patient/import ให้ดึงเข้ามา แต่ทดสอบด้วย stub เพราะ hospital-a.api.co.th ไม่มีอยู่จริง
+
+## Postman
+
+import `docs/postman_collection.json` เข้า Postman แล้วรันตามลำดับ
+
+    Staff - create (H001)
+    Staff - login          <- เก็บ token ลงตัวแปร collection ให้อัตโนมัติ
+    Patient - search by name
+
+collection มี 10 request ครอบคลุมทั้ง happy path และเคสที่ควรถูกปฏิเสธ
+(login รหัสผ่านผิด, ค้นโดยไม่มี token, ค้นเลขบัตรของคนไข้โรงพยาบาลอื่น)
+
+baseUrl ตั้งไว้ที่ http://localhost:8080 แก้ได้ที่แท็บ Variables ของ collection
 
 ## Testing
 
