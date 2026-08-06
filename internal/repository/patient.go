@@ -35,7 +35,8 @@ type PatientFilter struct {
 }
 
 // Upsert stores a patient, replacing the row that already holds the same
-// (publisher_id, patient_hn) rather than failing on the unique constraint.
+// hospital_id and patient_hn if one exists. It returns the stored row, which
+// may have been updated with new values for created_at and updated_at.
 func (r *Patient) Upsert(ctx context.Context, patient model.Patient) (model.Patient, error) {
 	const query = `
 	INSERT INTO patients (hospital_id, first_name_th, first_name_en, middle_name_th,  middle_name_en, last_name_th, last_name_en, date_of_birth, patient_hn, national_id, passport_id, phone_number, email, gender)
@@ -88,10 +89,7 @@ func (r *Patient) Search(ctx context.Context, hospitalID int64, filter PatientFi
 		where = append(where, fmt.Sprintf("%s = $%d", column, len(args)))
 	}
 
-	// either matches value against two columns with a single placeholder. The
-	// outer parentheses are required: without them the OR would escape this
-	// condition and combine with "publisher_id = $1", widening the search
-	// beyond the caller's own publisher.
+	// either adds "(columnA ILIKE '%$n%' OR columnB ILIKE '%$n%')" and remembers the value behind it.
 	either := func(columnA, columnB string, value *string) {
 		if value == nil {
 			return

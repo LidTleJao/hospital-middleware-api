@@ -40,6 +40,53 @@
 
 ## Database Schema
 
+  ```mermaid
+  erDiagram
+      hospitals ||--o{ staffs   : "employs"
+      hospitals ||--o{ patients : "has"
+
+      hospitals {
+          bigserial   hospital_id      PK
+          varchar     hospital_code    UK "H001, H002, ..."
+          varchar     hospital_name_th NULL
+          varchar     hospital_name_en NULL
+          timestamptz created_at
+          timestamptz updated_at
+      }
+
+      staffs {
+          bigserial   staff_id    PK
+          bigint      hospital_id FK
+          varchar     username         "unique คู่กับ hospital_id"
+          varchar     password         "bcrypt hash"
+          timestamptz created_at
+          timestamptz updated_at
+      }
+
+      patients {
+          bigserial   patient_id     PK
+          bigint      hospital_id    FK
+          varchar     patient_hn          "unique คู่กับ hospital_id"
+          varchar     national_id    NULL "unique คู่กับ hospital_id"
+          varchar     passport_id    NULL "unique คู่กับ hospital_id"
+          varchar     first_name_th  NULL
+          varchar     middle_name_th NULL
+          varchar     last_name_th   NULL
+          varchar     first_name_en  NULL
+          varchar     middle_name_en NULL
+          varchar     last_name_en   NULL
+          date        date_of_birth
+          varchar     phone_number   NULL
+          varchar     email          NULL
+          varchar     gender              "M หรือ F"
+          timestamptz created_at
+          timestamptz updated_at
+      }
+  ```
+
+  ความสัมพันธ์ทั้งหมดวิ่งออกจาก `hospitals` — ทุกแถวใน `staffs` และ `patients` ผูกกับโรงพยาบาลเดียวเสมอ และ unique constraint ทุกตัวมี `hospital_id` นำหน้า จึงเป็นขอบเขตข้อมูลที่บังคับตั้งแต่ระดับฐานข้อมูล ไม่ใช่แค่ในโค้ด
+
+
   ตาราง hospital
   สาเหตุเพราะ: hospital_code เป็น unique identifier ของโรงพยาบาล ใช้ในการเชื่อมโยงข้อมูลระหว่างระบบต่าง ๆ และป้องกันความสับสนจากชื่อโรงพยาบาลที่อาจซ้ำกัน
 
@@ -156,11 +203,12 @@
   ```
 
   ** Error **
-  | Status Code | Error Message         |
-  |-------------|-----------------------|
-  | 400         | Invalid request body  |
-  | 401         | Unauthorized          |
-  | 500         | Internal server error |
+  | Status Code | Error Message            |
+  |-------------|--------------------------|
+  | 400         | Invalid request body     |
+  | 401         | Unauthorized             |
+  | 404         | Patient not found in HIS |
+  | 500         | Internal server error    |
 
 
   - POST /patient/search: ค้นหาผู้ป่วยตามเงื่อนไขที่กำหนด
