@@ -44,6 +44,7 @@ func NewRouter(h Handlers, tokens TokenParser) *gin.Engine {
 	patient := router.Group("/patient", middleware.RequireAuth(tokens))
 	{
 		patient.POST("/search", h.Patient.Search)
+		patient.POST("/import", h.Patient.Import)
 	}
 
 	return router

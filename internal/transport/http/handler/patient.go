@@ -14,6 +14,7 @@ import (
 
 // patientService is the slice of the patient service this handler uses.
 type patientService interface {
+	Import(ctx context.Context, hospitalID int64, id string) (model.Patient, error)
 	Search(ctx context.Context, hospitalID int64, filter repository.PatientFilter, pageSize, page int) ([]model.Patient, error)
 }
 
@@ -21,6 +22,13 @@ type patientService interface {
 type Patient struct {
 	patients patientService
 }
+
+// syncRequest is the body POST /patients/sync accepts.
+type syncRequest struct {
+	ID string `json:"id" binding:"required"`
+}
+
+ะัยำ
 
 // NewPatient returns a handler backed by svc.
 func NewPatient(svc patientService) *Patient {
@@ -61,6 +69,7 @@ type patientResponse struct {
 	Gender       string  `json:"gender"`
 }
 
+// Search handles GET /patients/search. It returns a list of patients matching the search criteria.
 func (h *Patient) Search(c *gin.Context) {
 	var req searchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -109,6 +118,46 @@ func (h *Patient) Search(c *gin.Context) {
 			Email:        p.Email,
 			Gender:       p.Gender,
 		})
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *Patient) Import(c *gin.Context) {
+	var req syncRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse{Error: err.Error()})
+		return
+	}
+
+	claims, ok := middleware.ClaimsFrom(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, errorResponse{Error: "unauthorized"})
+		return
+	}
+
+	patient, err := h.patients.Import(c.Request.Context(), claims.HospitalID, req.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{Error: "internal error"})
+		return
+	}
+
+	res := patientResponse{
+		ID:           patient.ID,
+		HospitalID:   patient.HospitalID,
+		FirstNameTH:  patient.FirstNameTH,
+		MiddleNameTH: patient.MiddleNameTH,
+		LastNameTH:   patient.LastNameTH,
+		FirstNameEN:  patient.FirstNameEN,
+		MiddleNameEN: patient.MiddleNameEN,
+		LastNameEN:   patient.LastNameEN,
+		DateOfBirth:  patient.DateOfBirth.Format("2006-01-02"),
+		PatientHN:    patient.PatientHN,
+		NationalID:   patient.NationalID,
+		PassportID:   patient.PassportID,
+		PhoneNumber:  patient.PhoneNumber,
+		Email:        patient.Email,
+		Gender:       patient.Gender,
 	}
 
 	c.JSON(http.StatusOK, res)
